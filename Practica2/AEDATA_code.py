@@ -1,3 +1,5 @@
+import heap_mod as heap
+
 #=======================================CONJUNTOS DISJUNTOS=======================================
 
 def ds_init(n):
@@ -47,12 +49,6 @@ def ds_find(p_ds, m):
     return z
 
 #=======================================COMPONENTES CONEXAS=======================================
-'''La funcion recibe un entero n (el numero de nodos del grafo) y una lista de pares de enteros
-E = [(u1, v1), . . . , (um, vm)]
-con ui, vi ∈ [0, n). Cada elemento de la lista indica que hay un arco (no dirigido) entre los nodos ui and vi.
-La funcion ejecutara el algoritmo de componentes conexas y devolvera la estructura de conjuntos disjuntos que
-resulta de la ejecucion.'''
-
 def connected(n, e):
 
     p = ds_init(n)              #Inicializamos los conjuntos disjuntos
@@ -80,22 +76,37 @@ def connected_sets(p):
     #componente.values() devuelve todos los valores en el diccionario
     return list(componente.values())  
 
-lst = [(1,4), (3,4), (2,5)]
+"""lst = [(1,4), (3,4), (2,5)]
 s = connected(6, lst)
 n = connected_count(s)
 ccp = connected_sets(s)
 
 print(n)
-print(ccp)
+print(ccp)"""
 
 #=======================================GRAFOS=======================================
 
 def kruskal(n, E):
     mst = []  # Lista para el árbol de expansión mínima
     p_ds = ds_init(n)  # Inicializamos los conjuntos disjuntos
-    Q = []
+    arcos = heap.pq_ini()
+    aux = ()
 
-    # Ordenamos los arcos por peso
+    for (u, v, w) in E:
+        p = (w, u, v)  # La prioridad es el peso del arco y los nodos en orden lexicográfico
+        heap.pq_insert(arcos, ((u, v, w), p))
+
+    while len(mst) < n - 1 and len(arcos) > 0:
+        arcos, aux = heap.pq_extract(arcos)  # Extraemos el arco con el menor peso
+        u, v, w = aux[0]
+        if ds_find(p_ds, u) != ds_find(p_ds, v):
+            ds_union(p_ds, ds_find(p_ds, u), ds_find(p_ds, v))
+            mst.append((u, v, w))
+
+    if len(mst) != n - 1:
+        return None  # Si no se han añadido n-1 arcos, el grafo no es conexo y no tiene árbol abarcador
+
+    return n, mst
     
 
 def k_weight(n, E):
@@ -105,6 +116,12 @@ def k_weight(n, E):
         suma+=E[i][2]
 
     return suma
+
+"""E = [(0, 1, 10), (0, 3, 3), (1, 2, 1), (2, 3, 1), (2, 5, 1), (3, 4, 10), (4, 5, 1)]
+n = 6
+n_k, E_k = kruskal(n, E)
+print(E_k)
+print(k_weight(n_k, E_k))"""
 
 
 
