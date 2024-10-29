@@ -1,4 +1,6 @@
 import heap_mod as heap
+import random
+import time
 
 #=======================================CONJUNTOS DISJUNTOS=======================================
 
@@ -124,4 +126,77 @@ print(E_k)
 print(k_weight(n_k, E_k))"""
 
 
+def erdos_conn(n, m):
+    '''n grafo de Erd¨os-Renyi ponderados y modificado por conexion es un grafo aleatorio con n nodos en que cada
+nodo tiene en media m vecinos (n y m son los parametros que definen el grafo). En nuestro grafo consideraremos
+solo pesos contenidos en el intervalo [0, 1]. El grafo se genera con el metodo siguiente:
+i) Se crea una lista de arcos vacia
+ii) para i = 0, . . . , (n - 1), se elige un nodo aleatorio en el intervalo [0, i - 1] (sea m este nodo) , se genera un
+peso aleatorio w y se crea un arco (i, m, w) (estos arcos garantizan que el grafo final es conexo)
+
+ii) Para i = 0, . . . n x (m - 1) - 1 se eligen dos nodos aleatorios u, v que todavia no estan conectado, se genera
+un peso aleatorio w, y se añade el arco (u, v, w) a la lista de arcos.
+Se escriba una funcion
+erdos conn(n, m)
+que, dado los parametros n y m construya el grafo aleatorio y devuelva la lista de arcos'''
+
+    p = ds_init(n)
+    arcos = []
+    for i in range(n):
+        if i == 0:
+            m = 0
+        else:
+            m = random.randint(0, i-1)
+        w = random.randint(0, 1)
+        arcos.append((i, m, w))
+        ds_union(p, ds_find(p, i), ds_find(p, m))
+
+      # Inicializamos los conjuntos disjuntos para comprobar conexiones
+
+    for i in range(n*(m - 1)):
+        u = random.randint(0, n-1)
+        v = random.randint(0, n-1)
+        
+        # Si no estan conectados, seguir el bucle generando el peso y añadiendo la conexion
+        if (ds_find(p, u) == ds_find(p, v)):
+            continue
+        
+        w = random.randint(0, 1)
+
+        if (u, v, w) in arcos or (v, u, w) in arcos:
+            continue
+        arcos.append((u, v, w))
+        ds_union(p, ds_find(p, u), ds_find(p, v))  # Unimos los conjuntos disjuntos
+
+    return arcos
+
+#print(erdos_conn(10, 3))
+
+def time_kruskal(n, m, n_graphs):
+    
+    times = []
+    for _ in range(n_graphs):
+        E = erdos_conn(n, m)
+        start = time.perf_counter()
+        kruskal(n, E)
+        end = time.perf_counter()
+        times.append(end-start)
+
+    media = sum(times)/n_graphs
+    varianza = sum((i-media)**2 for i in times) / n_graphs
+
+    return media, varianza
+
+print(time_kruskal(12, 2, 1000))
+
+def dist_matrix(n_cities, w_max = 10):
+    M = [ [ random.uniform(0, w_max) for _ in range(n_cities)] for _ in range(n_cities) ]
+    for k in range(n_cities):
+        M[k][k] = 0
+        for h in range(k):
+            u = (M[k][h] + M[h][k])/2.0
+            M[h][k] = M[k][h] = u
+    return M
+
+    
 
