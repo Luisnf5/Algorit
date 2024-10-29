@@ -1,6 +1,7 @@
 import heap_mod as heap
 import random
 import time
+import itertools
 
 #=======================================CONJUNTOS DISJUNTOS=======================================
 
@@ -187,10 +188,10 @@ def time_kruskal(n, m, n_graphs):
 
     return media, varianza
 
-print(time_kruskal(12, 2, 1000))
+#print(time_kruskal(12, 2, 1000))
 
 def dist_matrix(n_cities, w_max = 10):
-    M = [ [ random.uniform(0, w_max) for _ in range(n_cities)] for _ in range(n_cities) ]
+    M = [ [ random.randint(0, w_max) for _ in range(n_cities)] for _ in range(n_cities) ]
     for k in range(n_cities):
         M[k][k] = 0
         for h in range(k):
@@ -198,5 +199,99 @@ def dist_matrix(n_cities, w_max = 10):
             M[h][k] = M[k][h] = u
     return M
 
+def greedy_tsp(dist_m, node_ini):
+
+    visited = [node_ini]
+    act_node = node_ini
+
+    if (node_ini > len(dist_m)-1):
+        return None
+
+    while len(visited) < len(dist_m):
+        min_dist = float('inf')
+        for i in range(len(dist_m)):
+            if dist_m[act_node][i] < min_dist and i not in visited:
+                min_dist = dist_m[act_node][i]
+                next_node = i
+        visited.append(next_node)
+        act_node = next_node
+
+    visited.append(node_ini)
+
+    return visited
+
+#print(greedy_tsp(dist_matrix(5), 0))
+
+def len_circuit(circuit, dist_m):
+    suma = 0
+
+    for i in range(len(circuit)-1):
+        suma += dist_m[circuit[i]][circuit[i+1]]
+
+    return suma
+
+def repeated_greedy_tsp(dist_m):
+
+    best_circuit = []
+    act_circuit = []
+    best_len = float('inf')
+    act_len = float('inf')
+
+    for i in range(len(dist_m)):
+        act_circuit = greedy_tsp(dist_m, i)
+        act_len = len_circuit(act_circuit, dist_m)
+
+        if act_len < best_len:
+            best_len = act_len
+            best_circuit = act_circuit
+
+    return best_circuit
+
+def exhaustive_tsp(dist_m):
+
+    best_circuit = []
+    best_len = float('inf')
+    act_len = float('inf')
+
+    for perm in itertools.permutations(range(len(dist_m))):
+        act_len = len_circuit(perm, dist_m)
+
+        if act_len < best_len:
+            best_len = act_len
+            best_circuit = perm
+
+    return best_circuit
+
+
+#=======================================EXTRA=======================================
+
+def permute(lst): 
+    act_list = []
+
+    if len(lst) == 1:
+        return [lst]
+
+    res = []
+
+    for i in range(len(lst)):
+        ele = lst[i]
+
+        restante = lst[:i] + lst[i+1:]
+
+        for p in permute(restante):
+            act_list.append(ele)
+            act_list.extend(p)
+            res.append(act_list)
+            act_list = []
+
+    return res
+
+'''
+Para crear todas las permutaciones de una lista podemos coger cada elemento de la lista mas todas las permutaciones de la lista restante.
+
+Al hacer esto con todos los elementos tenemos todas las permutaciones posibles.
+
+Ejemplo: Para la lista [1, 2, 3] podemos hacer (1 + permutaciones([2, 3]) +  (2 + permutaciones([1, 3])) + (3 + permutaciones([1, 2])).
+'''
     
 
