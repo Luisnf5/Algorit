@@ -191,7 +191,7 @@ def time_kruskal(n, m, n_graphs):
 #print(time_kruskal(12, 2, 1000))
 
 def dist_matrix(n_cities, w_max = 10):
-    M = [ [ random.randint(0, w_max) for _ in range(n_cities)] for _ in range(n_cities) ]
+    M = [ [ random.uniform(0, w_max) for _ in range(n_cities)] for _ in range(n_cities) ]
     for k in range(n_cities):
         M[k][k] = 0
         for h in range(k):
@@ -213,6 +213,8 @@ def greedy_tsp(dist_m, node_ini):
             if dist_m[act_node][i] < min_dist and i not in visited:
                 min_dist = dist_m[act_node][i]
                 next_node = i
+            else:
+                continue
         visited.append(next_node)
         act_node = next_node
 
@@ -250,18 +252,24 @@ def repeated_greedy_tsp(dist_m):
 def exhaustive_tsp(dist_m):
 
     best_circuit = []
+    act_circuit = []
     best_len = float('inf')
     act_len = float('inf')
 
     for perm in itertools.permutations(range(len(dist_m))):
-        act_len = len_circuit(perm, dist_m)
+        act_circuit += perm
+        act_circuit.append(perm[0])
+
+        act_len = len_circuit(act_circuit, dist_m)
 
         if act_len < best_len:
             best_len = act_len
-            best_circuit = perm
+            best_circuit.clear()
+            best_circuit.extend(act_circuit)
+        
+        act_circuit.clear()
 
     return best_circuit
-
 
 #=======================================EXTRA=======================================
 
