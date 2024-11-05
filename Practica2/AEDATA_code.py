@@ -20,9 +20,6 @@ def ds_union(p_ds, rep_1, rep_2):
     x = rep_1
     y = rep_2
 
-    if rep_1 > 0 or rep_2 > 0:
-        return None
-
     if x == y:
         return None
     if p_ds[y] < p_ds[x]:            # El árbol y es más alto
@@ -38,7 +35,7 @@ def ds_union(p_ds, rep_1, rep_2):
 
 #=======================================FUNCION FIND=======================================
 
-#FUNCION FIND RECURSIVA
+#FUNCION FIND CON COMPRESIÓN
 def ds_find(p_ds, m):
     # Encuentra el representante del conjunto al que pertenece el elemento m
     z = m
@@ -58,7 +55,8 @@ def connected(n, e):
     # Determina los conjuntos conexos en un grafo
     p = ds_init(n)              # Inicializamos los conjuntos disjuntos
     for (u, v) in e:            # Recorremos la lista de arcos
-        ds_union(p, ds_find(p, u), ds_find(p, v))  # Unimos los conjuntos disjuntos
+        if ds_union(p, ds_find(p, u), ds_find(p, v)) is None:
+            continue  # Si la unión falla, continuar con el siguiente arco
     return p
 
 def connected_count(p):
@@ -80,6 +78,8 @@ def connected_sets(p):
         componente[v].append(u)     # Se añade el elemento a su raíz (componente) correspondiente
         
     return list(componente.values())  
+
+
 
 #=======================================GRAFOS=======================================
 
@@ -147,7 +147,6 @@ def erdos_conn(n, m):
 
     return arcos
 
-
 def time_kruskal(n, m, n_graphs):
     # Mide el tiempo de ejecución del algoritmo de Kruskal en varios grafos
     times = []
@@ -162,8 +161,6 @@ def time_kruskal(n, m, n_graphs):
     varianza = sum((i-media)**2 for i in times) / n_graphs
 
     return media, varianza
-
-#print(time_kruskal(12, 2, 1000))
 
 def dist_matrix(n_cities, w_max = 10):
     # Genera una matriz de distancias aleatorias entre ciudades
@@ -198,8 +195,6 @@ def greedy_tsp(dist_m, node_ini):
 
     return visited
 
-#print(greedy_tsp(dist_matrix(5), 0))
-
 def len_circuit(circuit, dist_m):
     # Calcula la longitud total de un circuito dado
     suma = 0
@@ -210,7 +205,7 @@ def len_circuit(circuit, dist_m):
     return suma
 
 def repeated_greedy_tsp(dist_m):
-    # Algoritmo voraz repetido para resolver el problema del viajante
+    # Algoritmo codicioso repetido para resolver el problema del viajante
     best_circuit = []
     act_circuit = []
     best_len = float('inf')
@@ -247,6 +242,20 @@ def exhaustive_tsp(dist_m):
         act_circuit.clear()
 
     return best_circuit
+
+def times_kruskal_erdos(mp, me, mincr, n_graphs):
+    # Mide los tiempos de ejecución del algoritmo de Kruskal en varios grafos
+    times = []
+    for m in range (mp, me, mincr):
+        n = 2*m
+        times.append((n, time_kruskal(n, m, n_graphs)[0]))
+    return times
+
+
+   
+
+
+
 
 
 
