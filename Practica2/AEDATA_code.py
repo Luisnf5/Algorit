@@ -120,26 +120,7 @@ def k_weight(n, E):
 
     return suma
 
-"""E = [(0, 1, 10), (0, 3, 3), (1, 2, 1), (2, 3, 1), (2, 5, 1), (3, 4, 10), (4, 5, 1)]
-n = 6
-n_k, E_k = kruskal(n, E)
-print(E_k)
-print(k_weight(n_k, E_k))"""
-
-
 def erdos_conn(n, m):
-    '''n grafo de Erd¨os-Renyi ponderados y modificado por conexion es un grafo aleatorio con n nodos en que cada
-nodo tiene en media m vecinos (n y m son los parametros que definen el grafo). En nuestro grafo consideraremos
-solo pesos contenidos en el intervalo [0, 1]. El grafo se genera con el metodo siguiente:
-i) Se crea una lista de arcos vacia
-ii) para i = 0, . . . , (n - 1), se elige un nodo aleatorio en el intervalo [0, i - 1] (sea m este nodo) , se genera un
-peso aleatorio w y se crea un arco (i, m, w) (estos arcos garantizan que el grafo final es conexo)
-
-ii) Para i = 0, . . . n x (m - 1) - 1 se eligen dos nodos aleatorios u, v que todavia no estan conectado, se genera
-un peso aleatorio w, y se añade el arco (u, v, w) a la lista de arcos.
-Se escriba una funcion
-erdos conn(n, m)
-que, dado los parametros n y m construya el grafo aleatorio y devuelva la lista de arcos'''
 
     p = ds_init(n)
     arcos = []
