@@ -6,6 +6,7 @@ import itertools
 #=======================================CONJUNTOS DISJUNTOS=======================================
 
 def ds_init(n):
+    # Inicializa un conjunto disjunto con n elementos, cada uno representado por -1
     p = []
     for _ in range(n):
         p.append(-1)
@@ -15,7 +16,7 @@ def ds_init(n):
 
 #FUNCION UNION POR ALTURA
 def ds_union(p_ds, rep_1, rep_2):
-
+    # Une dos conjuntos disjuntos por altura
     x = rep_1
     y = rep_2
 
@@ -24,21 +25,22 @@ def ds_union(p_ds, rep_1, rep_2):
 
     if x == y:
         return None
-    if p_ds[y] < p_ds[x]:            #El arbol y es más alto
+    if p_ds[y] < p_ds[x]:            # El árbol y es más alto
         p_ds[x] = y
         return y
-    elif p_ds[x] < p_ds[y]:          #El arbol x es más alto
+    elif p_ds[x] < p_ds[y]:          # El árbol x es más alto
         p_ds[y] = x
         return x
-    else:                            #Los dos son de la misma altura
+    else:                            # Los dos son de la misma altura
         p_ds[y] = x
-        p_ds[x] -= 1                 #Se incrementa en uno la altura del arbol
+        p_ds[x] -= 1                 # Se incrementa en uno la altura del árbol
         return x
 
 #=======================================FUNCION FIND=======================================
 
 #FUNCION FIND RECURSIVA
 def ds_find(p_ds, m):
+    # Encuentra el representante del conjunto al que pertenece el elemento m
     z = m
 
     while p_ds[z] >= 0:
@@ -53,43 +55,36 @@ def ds_find(p_ds, m):
 
 #=======================================COMPONENTES CONEXAS=======================================
 def connected(n, e):
-
-    p = ds_init(n)              #Inicializamos los conjuntos disjuntos
-    for (u, v) in e:            #Recorremos la lista de arcos
-        ds_union(p, ds_find(p, u), ds_find(p, v))  #Unimos los conjuntos disjuntos
+    # Determina los conjuntos conexos en un grafo
+    p = ds_init(n)              # Inicializamos los conjuntos disjuntos
+    for (u, v) in e:            # Recorremos la lista de arcos
+        ds_union(p, ds_find(p, u), ds_find(p, v))  # Unimos los conjuntos disjuntos
     return p
 
 def connected_count(p):
-
+    # Cuenta el número de componentes conexas
     count = 0
-    #Por cada elemento en p
+    # Por cada elemento en p
     for i in p:
-        if i < 0:                   #Si es menor que 0, significa que es raiz
-            count +=1               #Se suma al contador
+        if i < 0:                   # Si es menor que 0, significa que es raíz
+            count +=1               # Se suma al contador
     return count
 
 def connected_sets(p):
-
+    # Devuelve una lista de conjuntos conexos
     componente = {}
-    for u in range(len(p)):         #Recorremos todos los elementos de p
-        v = ds_find(p, u)           #obtenemos la raiz
-        if v not in componente:     #si la razi no esta en el diccionario se crea una lista
+    for u in range(len(p)):         # Recorremos todos los elementos de p
+        v = ds_find(p, u)           # Obtenemos la raíz
+        if v not in componente:     # Si la raíz no está en el diccionario se crea una lista
             componente[v] = []
-        componente[v].append(u)     #Se añade el elemento a su raiz(componente) correspodiente
-    #componente.values() devuelve todos los valores en el diccionario
+        componente[v].append(u)     # Se añade el elemento a su raíz (componente) correspondiente
+        
     return list(componente.values())  
-
-"""lst = [(1,4), (3,4), (2,5)]
-s = connected(6, lst)
-n = connected_count(s)
-ccp = connected_sets(s)
-
-print(n)
-print(ccp)"""
 
 #=======================================GRAFOS=======================================
 
 def kruskal(n, E):
+    # Algoritmo de Kruskal para encontrar el árbol de expansión mínima
     mst = []  # Lista para el árbol de expansión mínima
     p_ds = ds_init(n)  # Inicializamos los conjuntos disjuntos
     arcos = heap.pq_ini()
@@ -113,6 +108,7 @@ def kruskal(n, E):
     
 
 def k_weight(n, E):
+    # Calcula el peso total del árbol de expansión mínima
     suma = 0
 
     for i in range(n-1):
@@ -121,7 +117,7 @@ def k_weight(n, E):
     return suma
 
 def erdos_conn(n, m):
-
+    # Genera un grafo aleatorio utilizando el modelo de Erdős-Rényi
     p = ds_init(n)
     arcos = []
     for i in range(n):
@@ -133,13 +129,12 @@ def erdos_conn(n, m):
         arcos.append((i, m, w))
         ds_union(p, ds_find(p, i), ds_find(p, m))
 
-      # Inicializamos los conjuntos disjuntos para comprobar conexiones
-
+    # Inicializamos los conjuntos disjuntos para comprobar conexiones
     for i in range(n*(m - 1)):
         u = random.randint(0, n-1)
         v = random.randint(0, n-1)
         
-        # Si no estan conectados, seguir el bucle generando el peso y añadiendo la conexion
+        # Si no están conectados, seguir el bucle generando el peso y añadiendo la conexión
         if (ds_find(p, u) == ds_find(p, v)):
             continue
         
@@ -152,10 +147,9 @@ def erdos_conn(n, m):
 
     return arcos
 
-#print(erdos_conn(10, 3))
 
 def time_kruskal(n, m, n_graphs):
-    
+    # Mide el tiempo de ejecución del algoritmo de Kruskal en varios grafos
     times = []
     for _ in range(n_graphs):
         E = erdos_conn(n, m)
@@ -172,6 +166,7 @@ def time_kruskal(n, m, n_graphs):
 #print(time_kruskal(12, 2, 1000))
 
 def dist_matrix(n_cities, w_max = 10):
+    # Genera una matriz de distancias aleatorias entre ciudades
     M = [ [ random.uniform(0, w_max) for _ in range(n_cities)] for _ in range(n_cities) ]
     for k in range(n_cities):
         M[k][k] = 0
@@ -181,7 +176,7 @@ def dist_matrix(n_cities, w_max = 10):
     return M
 
 def greedy_tsp(dist_m, node_ini):
-
+    # Algoritmo voraz para resolver el problema del viajante
     visited = [node_ini]
     act_node = node_ini
 
@@ -206,6 +201,7 @@ def greedy_tsp(dist_m, node_ini):
 #print(greedy_tsp(dist_matrix(5), 0))
 
 def len_circuit(circuit, dist_m):
+    # Calcula la longitud total de un circuito dado
     suma = 0
 
     for i in range(len(circuit)-1):
@@ -214,7 +210,7 @@ def len_circuit(circuit, dist_m):
     return suma
 
 def repeated_greedy_tsp(dist_m):
-
+    # Algoritmo voraz repetido para resolver el problema del viajante
     best_circuit = []
     act_circuit = []
     best_len = float('inf')
@@ -231,7 +227,7 @@ def repeated_greedy_tsp(dist_m):
     return best_circuit
 
 def exhaustive_tsp(dist_m):
-
+    # Algoritmo exhaustivo para resolver el problema del viajante
     best_circuit = []
     act_circuit = []
     best_len = float('inf')
