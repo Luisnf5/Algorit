@@ -18,13 +18,12 @@ class Graph:
             self._E[str(vertex_from)].add(str(vertex_to))
    
     def nodes(self) -> KeysView[str]:
-        
-        return self._V.keys()
+        return sorted(self._V.keys())
                       
     def adj(self, vertex) -> Set[str]:
         if str(vertex) not in self._E:
             raise KeyError('Vertex ' + str(vertex) + ' not in graph')
-        return self._E[vertex]
+        return sorted(self._E[vertex])
 
     def exists_edge(self, vertex_from, vertex_to)-> bool:
         if vertex_to in self._E[vertex_from]:
@@ -34,6 +33,13 @@ class Graph:
         
     def _init_node(self, vertex) -> None:
         self._V[str(vertex)] = {'color': 'WHITE', 'parent': None, 'd_time': None, 'f_time': None}
+
+    def restart(self) -> None:
+        for v in self.nodes():
+            self._V[v]['color'] = 'WHITE'
+            self._V[v]['parent'] = None
+            self._V[v]['d_time'] = None
+            self._V[v]['f_time'] = None
 
     def dfs(self, nodes_sorted: Iterable[str] = None) -> List[List[Tuple]]:
         ''' 
@@ -45,10 +51,31 @@ class Graph:
             Devuelve un bosque dfs en la que cada una de las sublistas es un
             árbol dfs. Cada elemnto del arbol es una tupla (vertex, parent)
         '''
-
-        pass
+        forest_forest= []
+        cont = 0
+        if nodes_sorted is None:
+            nodes_sorted = self.nodes()
+        for node in nodes_sorted:
+            if (self._V[node]['color'] == 'WHITE'):
+                forest = []
+                cont = self.dfs_rec(node, forest, cont)
+                forest_forest.append(forest)
+            
+        return forest_forest
     
-        
+    def dfs_rec(self, vertex, path: List[str], cont: int) -> List[Tuple]:
+        self._V[vertex]['color'] = 'BLACK'
+        cont += 1
+        self._V[vertex]['d_time'] = cont
+        path.append((vertex, self._V[vertex]['parent']))
+        for a in self.adj(vertex):
+            if self._V[a]['color'] == 'WHITE':
+                self._V[a]['parent'] = vertex
+                cont = self.dfs_rec(a, path, cont)
+        cont += 1
+        self._V[vertex]['f_time'] = cont
+        return cont
+
     def __str__(self) -> str:
         ret = ''
 
@@ -93,6 +120,7 @@ def write_adjlist(G: Graph, file: str) -> None:
             f.write(f'{u}')
             f.writelines([f' {v}' for v in G.adj(u)])
             f.write('\n')
+
 
     
 ### Driver code
