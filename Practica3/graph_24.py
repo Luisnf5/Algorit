@@ -1,5 +1,10 @@
+import random
 from typing import Set, List, Generator, Tuple, KeysView, Iterable
 import os
+from scipy.stats import binom
+import sys
+
+sys.setrecursionlimit(2000)
 
 class Graph:
     
@@ -75,6 +80,27 @@ class Graph:
         cont += 1
         self._V[vertex]['f_time'] = cont
         return cont
+    
+    def tarjan(self) -> List[List[str]]:
+        self.restart()
+        self.dfs()
+
+        graph_conj = graph_conjugate(self)
+
+        nodes = self.nodes()
+
+        # Ordenar los nodos por tiempo de finalización
+        nodes = sorted(nodes, key = lambda x: self._V[x]['f_time'], reverse = True)
+
+        dfs_forest_conj = graph_conj.dfs(nodes)
+        scc = []
+        for tree in dfs_forest_conj:
+            scc.append([])
+            for e in tree:
+                scc[len(scc)-1].append(e[0])
+
+        return scc
+
 
     def __str__(self) -> str:
         ret = ''
@@ -121,11 +147,70 @@ def write_adjlist(G: Graph, file: str) -> None:
             f.writelines([f' {v}' for v in G.adj(u)])
             f.write('\n')
 
+def graph_conjugate(G: Graph) -> Graph:
+    conjGraph = Graph()
+
+    for u in G.nodes():
+        conjGraph.add_node(u)
+
+    for u in G.nodes():
+        for v in G.adj(u):
+            conjGraph.add_edge(v, u)
+    
+    return conjGraph
+
+def erdos_renyi(n: int, m: float = 1.) -> Graph:
+    '''Devuelve un grafo aleatorio dirigido
+        n: numero de nodos del grafo
+        m: numero medio de vecinos de un nodo
+
+        El número de vecinos de cada nodo del grafo se obtiene
+        a partir de una muestra de una distribución binomial de
+        probabilidad p = m/n usando la funcion binom.rvs(n, m/n, size=n)
+    '''
+
+    G = Graph()
+    for i in range(n):
+        G.add_node(i)
+    for u in G.nodes():
+        numVecinos = binom.rvs(n, m/n, size=n)
+        i=0
+        for v in G.nodes():
+            if numVecinos[i] > (n/m)*100:
+                G.add_edge(u, v)
+            i += 1
+    return G
+
+
+def size_max_scc(n: int, m: int) -> Tuple[float, float]:
+    '''
+        Genera un grafo dirigo aleatorio de parametros n y m.
+        Calcula el tama~no de la mayor de las componentes fuertemente conexas.
+        Devuelve una tupla con el tama~no de la mayor scc del grafo normalizada por n
+        y el valor de m.
+    '''
+
+    g = erdos_renyi(n, m)
+
+    componentes_conexas = g.tarjan()
+    maximo = 0
+
+    for componente in componentes_conexas:
+        if len(componente) > maximo:
+            maximo = len(componente)
+
+    return maximo/n, m
+
+
 
     
 ### Driver code
 
 if __name__ == '__main__':
-    G = read_adjlist('./graph.txt')
-    print(G)
+    n = 1000
+    m = 10
+    num = binom.rvs(n, m/n, size=n)
+
+    print(type(num))
+    print(num)
 

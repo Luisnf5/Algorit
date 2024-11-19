@@ -25,5 +25,6 @@ print(f' DFS forest: {G.dfs ()}')
 print ()
 print (G)
 print ()
+print(f' dcc : {G.tarjan()}')
 
 
