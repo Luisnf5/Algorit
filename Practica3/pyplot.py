@@ -20,9 +20,9 @@ def grafica(points, file='percolation.png') -> None:
     plt.savefig(file)
     #plt.show()
 
-mmax = 296
+mmax = 6
 incr = 0.01
-for m in np.arange(294, mmax + incr , incr):
+for m in np.arange(0, mmax, incr):
     os.system('clear')
     print(f'Graficando... {((m/mmax)*100):.2f}%\n')
     points.append(size_max_scc(n, m))

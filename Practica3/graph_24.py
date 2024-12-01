@@ -24,6 +24,10 @@ class Graph:
    
     def nodes(self) -> KeysView[str]:
         return sorted(self._V.keys())
+    
+    def nodesint(self) -> KeysView[str]:
+        return sorted(self._V.keys(), key=lambda x: int(x))
+
                       
     def adj(self, vertex) -> Set[str]:
         if str(vertex) not in self._E:
@@ -159,6 +163,54 @@ def graph_conjugate(G: Graph) -> Graph:
     
     return conjGraph
 
+'''
+def erdos_renyi(n: int, m: float = 1.) -> Graph:
+    Devuelve un grafo aleatorio dirigido
+        n: numero de nodos del grafo
+        m: numero medio de vecinos de un nodo
+
+        El número de vecinos de cada nodo del grafo se obtiene
+        a partir de una muestra de una distribución binomial de
+        probabilidad p = m/n usando la funcion binom.rvs(n, m/n, size=n)
+    
+
+    G = Graph()
+    for i in range(n):
+        G.add_node(i)
+
+    numVecinos = binom.rvs(n, m/n, size=n)
+
+    print("NODES", G.nodesint())
+
+    print("NUMVECINOS", numVecinos)
+
+    for u in G.nodesint():
+        choices = list(G.nodesint())    
+        while (True):
+            if numVecinos[int(u)] == 0:
+                print("NO MAS VECINOS PARA: ", u)
+                break
+            if numVecinos[int(u)] < 0:
+                print("NUMVECINOS", numVecinos)
+                print("ERROR", u , numVecinos[int(u)], len(numVecinos))
+                print("ERROR", "CHOICES", choices)
+                print("ERROR", "V", v)
+                input("PRESS ENTER TO CONTINUE.")
+                break
+            
+            if not choices:
+                print("NO MORE CHOICES AVAILABLE FOR: ", u)
+                break
+            
+            v = random.choice(choices)
+            choices.remove(v)
+            if numVecinos[int(v)] > 0 and not G.exists_edge(u, v):
+                numVecinos[int(u)] -= 1
+                G.add_edge(str(u), str(v))
+
+    return G
+'''
+
 def erdos_renyi(n: int, m: float = 1.) -> Graph:
     '''Devuelve un grafo aleatorio dirigido
         n: numero de nodos del grafo
@@ -172,15 +224,19 @@ def erdos_renyi(n: int, m: float = 1.) -> Graph:
     G = Graph()
     for i in range(n):
         G.add_node(i)
-    for u in G.nodes():
-        numVecinos = binom.rvs(n, m/n, size=n)
-        i=0
-        for v in G.nodes():
-            if numVecinos[i] > (n/m)*100:
-                G.add_edge(u, v)
-            i += 1
-    return G
 
+    numVecinos = binom.rvs(n, m/n, size=n)
+
+    for u in G.nodesint():
+        choices = list(G.nodesint())
+        while numVecinos[int(u)] > 0 and choices:
+            v = random.choice(choices)
+            choices.remove(v)
+            if not G.exists_edge(u, v):
+                G.add_edge(u, v)
+                numVecinos[int(u)] -= 1
+
+    return G
 
 def size_max_scc(n: int, m: int) -> Tuple[float, float]:
     '''
@@ -193,11 +249,7 @@ def size_max_scc(n: int, m: int) -> Tuple[float, float]:
     g = erdos_renyi(n, m)
 
     componentes_conexas = g.tarjan()
-    maximo = 0
-
-    for componente in componentes_conexas:
-        if len(componente) > maximo:
-            maximo = len(componente)
+    maximo = max(len(componente) for componente in componentes_conexas)
 
     return maximo/n, m
 
