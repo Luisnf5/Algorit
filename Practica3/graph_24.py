@@ -205,16 +205,98 @@ def size_max_scc(n: int, m: int) -> Tuple[float, float]:
 
     return maximo/n, m
 
+def edit_distance(str_1: str, str_2: str) -> int:
+    '''
+        Calcula la distancia de edición entre dos cadenas
+    '''
+
+    m = len(str_1)
+    n = len(str_2)
+
+    dp = [[0 for x in range(n+1)] for x in range(m+1)]
+
+    for i in range(m+1):
+        for j in range(n+1):
+            if i == 0:
+                dp[i][j] = j
+            elif j == 0:
+                dp[i][j] = i
+            elif str_1[i-1] == str_2[j-1]:
+                dp[i][j] = dp[i-1][j-1]
+            else:
+                dp[i][j] = 1 + min(dp[i][j-1], dp[i-1][j], dp[i-1][j-1])
+
+    return dp[m][n]
+
+def max_subsequence_length(str_1: str, str_2: str) -> int:
+    '''
+        Calcula la longitud de la subsecuencia común más larga
+    '''
+
+    m = len(str_1)
+    n = len(str_2)
+
+    dp = [[0 for x in range(n+1)] for x in range(m+1)]
+
+    for i in range(m+1):
+        for j in range(n+1):
+            if i == 0 or j == 0:
+                dp[i][j] = 0
+            elif str_1[i-1] == str_2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+
+    return dp[m][n]
+
+def max_common_subsequence(str_1: str, str_2: str) -> str:
+    '''
+        Calcula la subsecuencia común más larga
+    '''
+
+    m = len(str_1)
+    n = len(str_2)
+
+    dp = [[0 for x in range(n+1)] for x in range(m+1)]
+
+    for i in range(m+1):
+        for j in range(n+1):
+            if i == 0 or j == 0:
+                dp[i][j] = 0
+            elif str_1[i-1] == str_2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+
+    index = dp[m][n]
+
+    lcs = [''] * (index+1)
+    lcs[index] = ''
+
+    i = m
+    j = n
+    while i > 0 and j > 0:
+
+        if str_1[i-1] == str_2[j-1]:
+            lcs[index-1] = str_1[i-1]
+            i -= 1
+            j -= 1
+            index -= 1
+
+        elif dp[i-1][j] > dp[i][j-1]:
+            i -= 1
+        else:
+            j -= 1
+
+    return ''.join(lcs)
+
+
 
 
     
 ### Driver code
 
 if __name__ == '__main__':
-    n = 1000
-    m = 10
-    num = binom.rvs(n, m/n, size=n)
-
-    print(type(num))
-    print(num)
-
+    print(edit_distance('casa', 'calle'))
+    print(max_subsequence_length('ABCD', 'ACDF'))
+    print(max_common_subsequence('ABCD', 'ACDF'))
