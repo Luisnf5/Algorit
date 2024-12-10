@@ -51,15 +51,6 @@ class Graph:
             self._V[v]['f_time'] = None
 
     def dfs(self, nodes_sorted: Iterable[str] = None) -> List[List[Tuple]]:
-        ''' 
-        Depth find search driver
-    
-            nodes_sorted: Si se le pasa un iterable el bucle principal de DFS
-            se iterará según el orden del iterable (eg en Tarjan)
-        
-            Devuelve un bosque dfs en la que cada una de las sublistas es un
-            árbol dfs. Cada elemnto del arbol es una tupla (vertex, parent)
-        '''
         forest_forest= []
         cont = 0
         if nodes_sorted is None:
@@ -164,14 +155,6 @@ def graph_conjugate(G: Graph) -> Graph:
     return conjGraph
 
 def erdos_renyi(n: int, m: float = 1.) -> Graph:
-    '''Devuelve un grafo aleatorio dirigido
-        n: numero de nodos del grafo
-        m: numero medio de vecinos de un nodo
-
-        El número de vecinos de cada nodo del grafo se obtiene
-        a partir de una muestra de una distribución binomial de
-        probabilidad p = m/n usando la funcion binom.rvs(n, m/n, size=n)
-    '''
 
     G = Graph()
     for i in range(n):
@@ -191,12 +174,6 @@ def erdos_renyi(n: int, m: float = 1.) -> Graph:
     return G
 
 def size_max_scc(n: int, m: int) -> Tuple[float, float]:
-    '''
-        Genera un grafo dirigo aleatorio de parametros n y m.
-        Calcula el tama~no de la mayor de las componentes fuertemente conexas.
-        Devuelve una tupla con el tama~no de la mayor scc del grafo normalizada por n
-        y el valor de m.
-    '''
 
     g = erdos_renyi(n, m)
 
@@ -291,12 +268,83 @@ def max_common_subsequence(str_1: str, str_2: str) -> str:
     return ''.join(lcs)
 
 
+def min_mult_matrix(l_dims: List[int]) -> int:
+    n = len(l_dims) - 1  # Número de matrices a multiplicar
 
+    if n <= 0:
+        return 0
+    
+    dp = [[0] * n for _ in range(n)]
+
+    # Calcular dp[i][j], que representa el costo mínimo de multiplicar matrices Ai...Aj
+    for chain_length in range(2, n + 1):  
+        for i in range(n - chain_length + 1):
+            j = i + chain_length - 1
+            dp[i][j] = float('inf')  
+            
+            for k in range(i, j):
+                # Calcular el costo para dividir en (Ai...Ak) x (Ak+1...Aj)
+                cost = dp[i][k] + dp[k + 1][j] + l_dims[i] * l_dims[k + 1] * l_dims[j + 1]
+                dp[i][j] = min(dp[i][j], cost)
+
+    # El costo mínimo para multiplicar A1...An está en dp[0][n-1]
+    return dp[0][n - 1]
 
     
 ### Driver code
 
 if __name__ == '__main__':
-    print(edit_distance('casa', 'calle'))
-    print(max_subsequence_length('ABCD', 'ACDF'))
-    print(max_common_subsequence('ABCD', 'ACDF'))
+
+    # Pruebas para edit_distance 
+    print("Edit Distance:") 
+    print(edit_distance("kitten", "sitting"))  
+    print(edit_distance("same", "same"))  
+    print(edit_distance("", "hello"))  
+    print(edit_distance("world", ""))   
+    print(edit_distance("", ""))  
+
+    # Pruebas para max_subsequence_length 
+    print("\nMax Subsequence Length:") 
+    print(max_subsequence_length("ABCD", "ACDF"))  
+    print(max_subsequence_length("common", "common"))  
+    print(max_subsequence_length("abcd", "efgh"))  
+    print(max_subsequence_length("abcd", ""))  
+    print(max_subsequence_length("", "efgh"))   
+
+    # Pruebas para max_common_subsequence 
+    print("\nMax Common Subsequence:") 
+    print(max_common_subsequence("ABCD", "ACDF"))  
+    print(max_common_subsequence("common", "common"))
+    print(f"Resultado 1: '{max_common_subsequence("abcd", "efgh")}'")  
+    print(f"Resultado 2: '{max_common_subsequence("abcd", "")}'") 
+    print(f"Resultado 3: '{max_common_subsequence("", "efgh")}'")  
+    print()
+
+    # Pruebas básicas con matrices de diferentes tamaños 
+    test_cases = [ 
+        [10, 20],  # Solo una matriz (no requiere multiplicación) 
+        [10, 20, 30],  # Dos matrices (10x20 y 20x30) 
+        [10, 20, 30, 40],  # Tres matrices 
+        [5, 10, 3, 12, 5, 50],  # Varias matrices 
+        [30, 35, 15, 5, 10, 20], # Más complejas 
+    ]
+
+    print("Pruebas de min_mult_matrix:") 
+    for i, dims in enumerate(test_cases, start=1):
+        print(f"Test case {i}: dimensiones {dims}") 
+        print(f" Mínimo número de productos: {min_mult_matrix(dims)}") 
+        print() 
+    
+    # Caso límite: ninguna matriz 
+    empty_case = [] 
+    print("Caso límite (sin matrices):", min_mult_matrix(empty_case)) 
+    print()
+    
+    # Caso límite: una sola matriz 
+    single_case = [10] 
+    print("Caso límite (una sola matriz):", min_mult_matrix(single_case)) 
+    print()
+    
+    # Caso grande 
+    large_case = [10] + [20] * 10 + [30] 
+    print("Caso grande:", min_mult_matrix(large_case))
